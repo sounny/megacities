@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Interactive Map of World Megacities</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+        #slider {
+            position: absolute;
+            bottom: 20px;
+            left: 30px;
+            width: 200px;
+            z-index: 1000;
+            padding: 5px;
+            background: white;
+        }
+        #yearHeading {
+            position: absolute;
+            right: 10px;
+            top: 5px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+        }
+        .ui-slider {
+            background: none;
+            border: none;
+            height: 0px;
+            margin: 0;
+        }
+        .ui-slider-range {
+            background: #5ba8ff;
+        }
+    </style>
+
+
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+<h1 id="yearHeading"></h1>
+<div id="map"></div>
+<div id="slider"></div>
+
+<script>
+    // Your data
+    var cities = [
+                {
+                    "City": "Tokyo",
+                    "Pop_1985": 30.3,
+                    "Pop_1990": 32.53,
+                    "Pop_1995": 33.59,
+                    "Pop_2000": 34.45,
+                    "Pop_2005": 35.62,
+                    "Pop_2010": 36.83,
+                    "Pop_2015": 38.0,
+                    "geometry": [35.695126, 139.75391]
+                },
+                {
+                    "City": "Delhi",
+                    "Pop_1985": 7.33,
+                    "Pop_1990": 9.73,
+                    "Pop_1995": 12.41,
+                    "Pop_2000": 15.73,
+                    "Pop_2005": 18.67,
+                    "Pop_2010": 21.94,
+                    "Pop_2015": 25.7,
+                    "geometry": [24.734319, 81.334404]
+                },
+                {
+                    "City": "Shanghai",
+                    "Pop_1985": 6.85,
+                    "Pop_1990": 7.82,
+                    "Pop_1995": 10.45,
+                    "Pop_2000": 13.96,
+                    "Pop_2005": 16.76,
+                    "Pop_2010": 19.98,
+                    "Pop_2015": 23.74,
+                    "geometry": [31.246027, 121.483385]
+                },
+                {
+                    "City": "São Paulo",
+                    "Pop_1985": 13.39,
+                    "Pop_1990": 14.78,
+                    "Pop_1995": 15.91,
+                    "Pop_2000": 17.01,
+                    "Pop_2005": 18.29,
+                    "Pop_2010": 19.66,
+                    "Pop_2015": 21.07,
+                    "geometry": [-1.32311, -47.504873]
+                },
+                {
+                    "City": "Mumbai (Bombay)",
+                    "Pop_1985": 10.39,
+                    "Pop_1990": 12.44,
+                    "Pop_1995": 14.31,
+                    "Pop_2000": 16.37,
+                    "Pop_2005": 17.89,
+                    "Pop_2010": 19.42,
+                    "Pop_2015": 21.04,
+                    "geometry": [19.10109, 72.875449]
+                },
+                {
+                    "City": "Ciudad de México (Mexico City)",
+                    "Pop_1985": 14.28,
+                    "Pop_1990": 15.64,
+                    "Pop_1995": 17.02,
+                    "Pop_2000": 18.46,
+                    "Pop_2005": 19.28,
+                    "Pop_2010": 20.13,
+                    "Pop_2015": 21.0,
+                    "geometry": [19.371422, -99.150344]
+                },
+                {
+                    "City": "Beijing",
+                    "Pop_1985": 6.02,
+                    "Pop_1990": 6.79,
+                    "Pop_1995": 8.31,
+                    "Pop_2000": 10.16,
+                    "Pop_2005": 12.81,
+                    "Pop_2010": 16.19,
+                    "Pop_2015": 20.38,
+                    "geometry": [39.937967, 116.417592]
+                },
+                {
+                    "City": "Kinki M.M.A. (Osaka)",
+                    "Pop_1985": 17.58,
+                    "Pop_1990": 18.39,
+                    "Pop_1995": 18.94,
+                    "Pop_2000": 18.66,
+                    "Pop_2005": 18.76,
+                    "Pop_2010": 19.49,
+                    "Pop_2015": 20.24,
+                    "geometry": [34.671654,135.501902]
+                },
+                {
+                    "City": "Al-Qahirah (Cairo)",
+                    "Pop_1985": 8.33,
+                    "Pop_1990": 9.89,
+                    "Pop_1995": 11.96,
+                    "Pop_2000": 13.63,
+                    "Pop_2005": 15.17,
+                    "Pop_2010": 16.9,
+                    "Pop_2015": 18.77,
+                    "geometry": [29.671562, 31.604036]
+                },
+                {
+                    "City": "New York-Newark",
+                    "Pop_1985": 15.83,
+                    "Pop_1990": 16.09,
+                    "Pop_1995": 16.94,
+                    "Pop_2000": 17.81,
+                    "Pop_2005": 18.09,
+                    "Pop_2010": 18.37,
+                    "Pop_2015": 18.59,
+                    "geometry": [40.68295, -73.9708]
+                },
+                {
+                    "City": "Dhaka",
+                    "Pop_1985": 4.66,
+                    "Pop_1990": 6.62,
+                    "Pop_1995": 8.33,
+                    "Pop_2000": 10.28,
+                    "Pop_2005": 12.33,
+                    "Pop_2010": 14.73,
+                    "Pop_2015": 17.6,
+                    "geometry": [23.7104, 90.40744]
+                },
+                {
+                    "City": "Karachi",
+                    "Pop_1985": 6.03,
+                    "Pop_1990": 7.15,
+                    "Pop_1995": 8.47,
+                    "Pop_2000": 10.03,
+                    "Pop_2005": 11.89,
+                    "Pop_2010": 14.08,
+                    "Pop_2015": 16.62,
+                    "geometry": [24.865645, 67.01523]
+                },
+                {
+                    "City": "Buenos Aires",
+                    "Pop_1985": 9.96,
+                    "Pop_1990": 10.51,
+                    "Pop_1995": 11.39,
+                    "Pop_2000": 12.41,
+                    "Pop_2005": 13.33,
+                    "Pop_2010": 14.25,
+                    "Pop_2015": 15.18,
+                    "geometry": [ -34.607357,-58.454595]
+                },
+                {
+                    "City": "Kolkata (Calcutta)",
+                    "Pop_1985": 9.95,
+                    "Pop_1990": 10.89,
+                    "Pop_1995": 11.92,
+                    "Pop_2000": 13.06,
+                    "Pop_2005": 13.7,
+                    "Pop_2010": 14.28,
+                    "Pop_2015": 14.86,
+                    "geometry": [22.550437,88.362561]
+                },
+                {
+                    "City": "Istanbul",
+                    "Pop_1985": 5.41,
+                    "Pop_1990": 6.55,
+                    "Pop_1995": 7.67,
+                    "Pop_2000": 8.74,
+                    "Pop_2005": 10.51,
+                    "Pop_2010": 12.7,
+                    "Pop_2015": 14.16,
+                    "geometry": [41.239403,28.409152]
+                }
+
+    ];
+
+    // Create a map
+    var map = L.map('map').setView([0, 0], 3);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+    }).addTo(map);
+
+    // Create a group layer for the circles
+    var circlesLayer = L.layerGroup().addTo(map);
+
+    // Function to add circles to the map
+    function addCircles(year) {
+        // Clear the circles layer
+        circlesLayer.clearLayers();
+
+        // Update the year heading
+        document.getElementById('yearHeading').textContent = 'Year: ' + year;
+
+        cities.forEach(city => {
+            // Create a circle for the city
+            var circle = L.circle(city.geometry, {
+                radius: city[`Pop_${year}`] * 10000,  // Adjust this as necessary
+                color: 'blue',
+                fillOpacity: 0.5,
+            });
+
+            // Create a popup for the circle
+            circle.bindPopup(`<b>${city.City}</b><br>Population: ${city[`Pop_${year}`]} million`);
+
+            // Add the circle to the circles layer
+            circle.addTo(circlesLayer);
+        });
+    }
+
+    // Initial circles
+    addCircles(1985);
+
+    // Add a slider
+    $("#slider").slider({
+        min: 1985,
+        max: 2015,
+        step: 5,
+        slide: function(event, ui) {
+            // Add new circles
+            addCircles(ui.value);
+        }
+    });
+</script>
+</body>
+</html>
